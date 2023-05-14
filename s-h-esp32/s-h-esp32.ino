@@ -1,75 +1,69 @@
-/*************************************************************
+#include <Servo.h> //door lock
+#include <Keypad.h> //door lock
 
-  This is a simple demo of sending and receiving some data.
-  Be sure to check out other examples!
- *************************************************************/
+Servo myservo;  // door lock
+#define ROW_NUM     4 // four rows// door lock
+#define COLUMN_NUM  4 // four columns// door lock
 
-/* Fill-in information from Blynk Device Info here */
-#define BLYNK_TEMPLATE_ID           "TMPL6Wl7Ap02Q"
-#define BLYNK_TEMPLATE_NAME         "Quickstart Device"
-#define BLYNK_AUTH_TOKEN            "Oly45LaZz6fkgBHSQhhzn5-Gf4U0-W44"
+char keys[ROW_NUM][COLUMN_NUM] = {
+  {'1', '2', '3' , 'A'},
+  {'4', '5', '6' , 'B'},
+  {'7', '8', '9' , 'C'},
+  {'*', '0', '#' , 'D'}
+}; // door lock
 
-/* Comment this out to disable prints and save space */
-#define BLYNK_PRINT Serial
+byte pin_rows[ROW_NUM] = { 12, 14, 27, 26}; // door lock
+byte pin_column[COLUMN_NUM] = { 25, 33 , 32, 15};  // door lock
+
+Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM );// door lock
+
+const String open_password = "1010A"; // // door lock
+const String close_password = "1010B"; // // door lock
+String input_password; // door lock
 
 
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <BlynkSimpleEsp32.h>
+int pos = 0;    // door lock
 
-// Your WiFi credentials.
-// Set password to "" for open networks.
-char ssid[] = "GALAXY A55";
-char pass[] = "suffixes";
-
-BlynkTimer timer;
-
-// This function is called every time the Virtual Pin 0 state changes
-BLYNK_WRITE(V0)
-{
-  // Set incoming value from pin V0 to a variable
-  int value = param.asInt();
-
-  // Update state
-  Blynk.virtualWrite(V1, value);
+void setup() {
+  myservo.attach(13);// attaches the servo on pin 13 to the servo object
+  Serial.begin(9600);
+  input_password.reserve(32);
 }
 
-// This function is called every time the device is connected to the Blynk.Cloud
-BLYNK_CONNECTED()
-{
-  // Change Web Link Button message to "Congratulations!"
-  Blynk.setProperty(V3, "offImageUrl", "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations.png");
-  Blynk.setProperty(V3, "onImageUrl",  "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations_pressed.png");
-  Blynk.setProperty(V3, "url", "https://docs.blynk.io/en/getting-started/what-do-i-need-to-blynk/how-quickstart-device-was-made");
+void loop() {
+  
+
+
+   char key = keypad.getKey();
+
+  if (key) {
+    Serial.println(key);
+
+    if (key == '*') {
+      input_password = ""; // clear input password
+    } else if (key == '#') {
+      if (password == input_password) {
+        Serial.println("The password is correct, ACCESS GRANTED!");
+        // DO YOUR WORK HERE
+        for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(5);                       // waits 15ms for the servo to reach the position
+  }
+  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(5);                       // waits 15ms for the servo to reach the position
+  }
+
+      } else {
+        Serial.println("The password is incorrect, ACCESS DENIED!");
+      }
+
+      input_password = ""; // clear input password
+    } else {
+      input_password += key; // append new character to input password string
+    }
+  }
 }
 
-// This function sends Arduino's uptime every second to Virtual Pin 2.
-void myTimerEvent()
-{
-  // You can send any value at any time.
-  // Please don't send more that 10 values per second.
-  Blynk.virtualWrite(V2, millis() / 1000);
-}
-
-void setup()
-{
-  // Debug console
-  Serial.begin(115200);
-
-  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
-  // You can also specify server:
-  //Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass, "blynk.cloud", 80);
-  //Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass, IPAddress(192,168,1,100), 8080);
-
-  // Setup a function to be called every second
-  timer.setInterval(1000L, myTimerEvent);
-}
-
-void loop()
-{
-  Blynk.run();
-  timer.run();
-  // You can inject your own code or combine it with other sketches.
-  // Check other examples on how to communicate with Blynk. Remember
-  // to avoid delay() function!
-}
+//Arduino Pin 13 for servo input 
