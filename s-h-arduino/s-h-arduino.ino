@@ -64,3 +64,4 @@ void loop() {
 }
 
 //Arduino Pin 13,12,11,10,9,8,7,6 for 4x4
+//Arduino Pin 1,0 for ESP-32 comm
