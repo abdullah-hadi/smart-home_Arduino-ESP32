@@ -27,22 +27,8 @@ int antiTheft = 0;
 int smartWindow = 0;
 //Blynk Start
 
-// BLYNK_WRITE(V0) {
-//   antiTheft = param.asInt();
-//   Serial.print("antiTheft = ");
-//   Serial.println(antiTheft);
-// }
-// BLYNK_WRITE(V1) {
-//   smartWindow = param.asInt();
-//   Serial.print("smartWindow = ");
-//   Serial.println(smartWindow);
-// }
-
 
 //Blynk Stop
-
-
-
 
 //callme START
 
@@ -80,23 +66,6 @@ void sendMessage(String message) {
 const char* ssid = "GALAXY A55";
 const char* password = "suffixes";
 
-// BlynkTimer timer;
-
-
-
-// // This function is called every time the device is connected to the Blynk.Cloud
-// BLYNK_CONNECTED() {
-//   // Change Web Link Button message to "Congratulations!"
-//   Blynk.setProperty(V3, "offImageUrl", "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations.png");
-//   Blynk.setProperty(V3, "onImageUrl", "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations_pressed.png");
-//   Blynk.setProperty(V3, "url", "https://docs.blynk.io/en/getting-started/what-do-i-need-to-blynk/how-quickstart-device-was-made");
-// }
-
-
-
-
-
-
 
 //sonar START
 NewPing sonarFront(TRIGGER_PIN_Front, ECHO_PIN_Front, MAX_DISTANCE);
@@ -113,8 +82,10 @@ void buzzer(int x) {
 String a;
 String o = "o";
 String c = "c";
-Servo myservo;
+Servo doorServo;
+Servo windowServo;
 int pos = 0;
+int stepDelay = 1;
 //door lock END
 //flame sensor START
 
@@ -134,7 +105,7 @@ Stepper windowStepper = Stepper(stepsPerRevolution, 12, 27, 14, 26);
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
-int feature = 5;
+int feature = 1;
 void setup() {
 
   Serial.begin(115200);
@@ -152,110 +123,69 @@ void setup() {
   //door lock START
 
   // attaches the servo on pin 13 to the servo object
+  pinMode(14, OUTPUT);
+  pinMode(12, INPUT);
 
   //door lock END
-  // Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
-  // You can also specify server:
-  //Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass, "blynk.cloud", 80);
-  //Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass, IPAddress(192,168,1,100), 8080);
 
-  // Setup a function to be called every second
-  myservo.attach(13);
-
-
+  doorServo.attach(32);
+  windowServo.attach(13);
 
   // sendMessage("Hello from ESP32!");
 }
 
 void loop() {
-  // a = Serial2.readString();
-  // Serial.println(a);
-  // Blynk.run();
-  // timer.run();
-
-
-
-
-
-
-  //door lock START
-  //door lock START
+  //door and Window START
+  //door and Window START
   if (feature == 1) {
     a = Serial2.readString();
     Serial.println(a);
 
-
-    if (a == o || smartWindow == 1) {
-
-
-      for (pos = 0; pos <= 90; pos += 1) {  // goes from 0 degrees to 180 degrees
-        // in steps of 1 degree
-        myservo.write(pos);  // tell servo to go to position in variable 'pos'
-        delay(5);
-        // waits 15ms for the servo to reach the position
+    if (a == "o")
+      for (int pos = 1000; pos <= 2000; pos += 5) {
+        doorServo.writeMicroseconds(pos);
+        delay(stepDelay);
       }
-    }
-    if (a == c || smartWindow == 0) {
-      for (pos = 90; pos >= 0; pos -= 1) {  // goes from 180 degrees to 0 degrees
-        myservo.write(pos);                 // tell servo to go to position in variable 'pos'
-        delay(5);
-        // waits 15ms for the servo to reach the position
+    if (a == "w")
+      for (int pos = 900; pos <= 2000; pos += 5) {
+
+        windowServo.writeMicroseconds(pos);
+        delay(stepDelay);
       }
+    if (a == "c")
+      for (int pos = 2000; pos >= 1000; pos -= 2) {
+        doorServo.writeMicroseconds(pos);
+        delay(stepDelay);
+      }
+    if (a == "x")
+      for (int pos = 2000; pos >= 900; pos -= 2) {
+
+        windowServo.writeMicroseconds(pos);
+        delay(stepDelay);
+      }
+  }
+  //door and Window END
+  //door and Window END
+
+  //Laser Receiver Start
+  //Laser Receiver Start
+  if (feature == 1) {
+
+    if (digitalRead(12) == 1) {
+      buzzer(1);
+      sendMessage("Car Stolen");
+
+    } else {
+      buzzer(0);
     }
   }
-  //door lock END
-  //door lock END
-
-
-
-
-  // Garage START
-  // Garage START
-  // if (feature == 2) {
-
-  //   // Rotate CW slowly at 5 RPM
-  //   garageStepper.setSpeed(15);
-  //   garageStepper.step(stepsPerRevolution);
-  //   delay(1000);
-
-  //   // Rotate CCW quickly at 10 RPM
-  //   garageStepper.setSpeed(15);
-  //   garageStepper.step(-stepsPerRevolution);
-  //   delay(1000);
-
-  //   feature = 3;
-  // }
-
-  //Garage END
-  //Garage END
-
-  //Window START
-  //Window START
-  if (feature == 3) {
-
-    // Rotate CW slowly at 5 RPM
-    windowStepper.setSpeed(15);
-    garageStepper.setSpeed(15);
-
-    windowStepper.step(stepsPerRevolution);
-    garageStepper.step(stepsPerRevolution);
-    delay(1000);
-
-    // Rotate CCW quickly at 10 RPM
-    windowStepper.setSpeed(15);
-    garageStepper.setSpeed(15);
-    windowStepper.step(-stepsPerRevolution);
-    garageStepper.step(-stepsPerRevolution);
-    delay(1000);
-  }
-
-
-  //Window END
-  //Window END
+  //Laser Receiver END
+  //Laser Receiver END
 
   //flame sensor START
   //flame sensor START
-  if (feature == 4) {
+
+  if (feature == 1) {
     int fire = digitalRead(flameSensor);
     if (fire == 0) {
       Serial.println("fire");
@@ -271,13 +201,8 @@ void loop() {
   //flame sensor END
   //sonar START
   //sonar START
-  if (feature == 5) {
+  if (feature == 1) {
 
-
-
-    // Serial.print("Front = ");
-    // Serial.print(sonarFront.ping_cm());
-    // Serial.println(" cm");
     int front = sonarFront.ping_cm();
     int back = sonarBack.ping_cm();
     int left = sonarLeft.ping_cm();
@@ -288,41 +213,25 @@ void loop() {
       sendMessage("Alert! Intruder at front door🚨");
       buzzer(1);
     }
-    // if (front >= 15) {
-    //   buzzer(0);
-    // }
+
     Serial.println(back);
     if (back < 15 && back != 0) {
       sendMessage("Alert! Intruder is behind garage🚨");
       buzzer(1);
     }
-    // if (back >= 15) {
-    //   buzzer(0);
-    // }
-
-
     Serial.println(left);
     if (left < 15 && left != 0) {
       sendMessage("Alert! Intruder is in the driveway🚨");
       buzzer(1);
     }
-    // if (left >= 15) {
-    //   buzzer(0);
-    // }
-
     Serial.println(right);
     if (right < 15 && right != 0) {
       sendMessage("Alert! Intruder is beside the kitchen window🚨");
       buzzer(1);
     }
-    // if (right >= 15) {
-    //   buzzer(0);
-    // }
-
     Serial.println("| |");
     Serial.println("| |");
     Serial.println("| |");
-
     delay(100);
     buzzer(0);
   }
@@ -331,10 +240,12 @@ void loop() {
   //sonar END
 }
 
-//ESP32 Pin 13 for servo input window
+//ESP32 Pin 13 for servo door
+//ESP32 Pin 32 for servo window
 //ESP32 Pin 21, 19, 18, 5 for garage stepper
-//ESP32 Pin 12, 14, 27, 26 for windows stepper
+//ESP32 Pin 14, 27, 26 for windows stepper
 //ESP32 Pin 15 to 33 Flame Sensor
 //ESP32 Pin 2  Buzzer
 //ESP32 Pin 4,35  22,34  23,39  25,36  front , back , left , right
 //ESP32 Pin 16 , 17 Arduino comm
+//ESP32 Pin 12 Laser Receiver

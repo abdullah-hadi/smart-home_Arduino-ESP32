@@ -32,8 +32,8 @@ char keys[ROW_NUM][COLUMN_NUM] = {
   { '*', '0', '#', 'D' }
 };  // door lock
 
-byte pin_rows[ROW_NUM] = { 13, 12, 11, 10 };   // door lock
-byte pin_column[COLUMN_NUM] = { 9, 8, 7, 6 };  // door lock
+byte pin_rows[ROW_NUM] = { 5, 6, 7, 8 };   // door lock
+byte pin_column[COLUMN_NUM] = { 9, 10, 11, 12 };  // door lock
 
 Keypad keypad = Keypad(makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM);  // door lock
 
@@ -42,7 +42,7 @@ const String close_password = "1010B";  // // door lock
 String input_password;                  // door lock
 
 int feat = 0;
-int window = 5;
+int window = 0;
 void setup() {
   Serial.begin(9600);
 
@@ -51,6 +51,7 @@ void setup() {
 
   pinMode(UVOUT, INPUT);
   pinMode(REF_3V3, INPUT);
+  
 }
 
 void loop() {
@@ -66,19 +67,19 @@ void loop() {
     float uvIntensity = mapfloat(outputVoltage, 0.99, 2.8, 0.0, 15.0);  //Convert the voltage to a UV intensity level
     int fv = 100 * uvIntensity;
 
-
-    if (uvIntensity > 0 && window == 0) {
-      Serial.print("wo");
-      window = 1;
-       delay(500);
-    }
-    if (uvIntensity < 0 && window != 0) {
-      Serial.print("wc");
+    // Serial.println(uvIntensity);
+    if (uvIntensity > 0 && window == 1 ) {
+      Serial.print("w");
       window = 0;
-
-      delay(500);
+       delay(1000);
     }
-        delay(100);
+    if (uvIntensity < 0 && window ==0 ) {
+      Serial.print("x");
+      window = 1;
+
+      delay(1000);
+    }
+        // delay(100);
   }
 
   if (feat == 0) {
@@ -91,7 +92,7 @@ void loop() {
 
     char key = keypad.getKey();
 
-    if (key) {
+    if (key) { 
 
 
       if (key == '*') {
