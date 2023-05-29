@@ -2,14 +2,9 @@
 #include <WiFiClient.h>
 #include <HTTPClient.h>
 #include <UrlEncode.h>
-// #include <BlynkSimpleEsp32.h>
-#include <Servo.h>    //door lock
-#include <Stepper.h>  // Window and Garage
+#include <Servo.h>  
+#include <Stepper.h> 
 #include <NewPing.h>  //ultrasonic sensor
-// #define BLYNK_TEMPLATE_ID "TMPL6Wl7Ap02Q"
-// #define BLYNK_TEMPLATE_NAME "Quickstart Device"
-// #define BLYNK_AUTH_TOKEN "Oly45LaZz6fkgBHSQhhzn5-Gf4U0-W44"
-// #define BLYNK_PRINT Serial
 #define RXp2 16
 #define TXp2 17
 #define flameSensor 33
@@ -25,19 +20,13 @@
 
 int antiTheft = 0;
 int smartWindow = 0;
-//Blynk Start
-
-
-//Blynk Stop
 
 //callme START
-
-
 String phoneNumber = "+8801761377885";
 String apiKey = "4336380";
 
 void sendMessage(String message) {
-
+  
   // Data to send with HTTP POST
   String url = "https://api.callmebot.com/whatsapp.php?phone=" + phoneNumber + "&apikey=" + apiKey + "&text=" + urlEncode(message);
   HTTPClient http;
@@ -60,12 +49,10 @@ void sendMessage(String message) {
   http.end();
 }
 
-
 //callme END
 
 const char* ssid = "Galaxy A55";
 const char* password = "suffixes";
-
 
 //sonar START
 NewPing sonarFront(TRIGGER_PIN_Front, ECHO_PIN_Front, MAX_DISTANCE);
@@ -87,17 +74,14 @@ Servo windowServo;
 int pos = 0;
 int stepDelay = 1;
 //door lock END
-//flame sensor START
-
-//flame sensor END
 
 //Garage START
-const int stepsPerRevolution = 2038;
-Stepper garageStepper = Stepper(stepsPerRevolution, 21, 18, 19, 5);
+//const int stepsPerRevolution = 2038;
+//Stepper garageStepper = Stepper(stepsPerRevolution, 21, 18, 19, 5);
 //Garage END
 
 //Window START
-Stepper windowStepper = Stepper(stepsPerRevolution, 12, 27, 14, 26);
+//Stepper windowStepper = Stepper(stepsPerRevolution, 12, 27, 14, 26);
 //Window END
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -110,28 +94,21 @@ void setup() {
 
   Serial.begin(115200);
   Serial2.begin(9600, SERIAL_8N1, RXp2, TXp2);
-
   pinMode(2, OUTPUT);
   WiFi.begin(ssid, password);
   Serial.println(WiFi.localIP());
-
-
+  
   //flame sensor START
   pinMode(flameSensor, INPUT);
   //flame sensor END
-
-  //door lock START
-
-  // attaches the servo on pin 13 to the servo object
+  
+  //laser sensor START
   pinMode(14, OUTPUT);
   pinMode(12, INPUT);
-
-  //door lock END
-
+  //laser sensor END
   doorServo.attach(32);
   windowServo.attach(13);
-
-  // sendMessage("Hello from ESP32!");
+  // sendMessage("Initiated");
 }
 
 void loop() {
@@ -140,7 +117,7 @@ void loop() {
   if (feature == 1) {
     a = Serial2.readString();
     Serial.println(a);
-
+    
     if (a == "o")
       for (int pos = 1000; pos <= 2000; pos += 5) {
         doorServo.writeMicroseconds(pos);
@@ -148,7 +125,6 @@ void loop() {
       }
     if (a == "w")
       for (int pos = 900; pos <= 2000; pos += 5) {
-
         windowServo.writeMicroseconds(pos);
         delay(stepDelay);
       }
@@ -159,7 +135,6 @@ void loop() {
       }
     if (a == "x")
       for (int pos = 2000; pos >= 900; pos -= 2) {
-
         windowServo.writeMicroseconds(pos);
         delay(stepDelay);
       }
@@ -171,11 +146,10 @@ void loop() {
   //Laser Receiver Start
   if (feature == 1) {
     digitalWrite(14,1);
-
+    
     if (digitalRead(12) == 1) {
       buzzer(1);
       sendMessage("Car Stolen");
-
     } else {
       buzzer(0);
     }
@@ -220,16 +194,19 @@ void loop() {
       sendMessage("Alert! Intruder is behind garage🚨");
       buzzer(1);
     }
+    
     Serial.println(left);
     if (left < 15 && left != 0) {
       sendMessage("Alert! Intruder is in the driveway🚨");
       buzzer(1);
     }
+    
     Serial.println(right);
     if (right < 15 && right != 0) {
       sendMessage("Alert! Intruder is beside the kitchen window🚨");
       buzzer(1);
     }
+    
     Serial.println("| |");
     Serial.println("| |");
     Serial.println("| |");
