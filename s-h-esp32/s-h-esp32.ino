@@ -63,7 +63,7 @@ void sendMessage(String message) {
 
 //callme END
 
-const char* ssid = "GALAXY A55";
+const char* ssid = "Galaxy A55";
 const char* password = "suffixes";
 
 
@@ -166,10 +166,11 @@ void loop() {
   }
   //door and Window END
   //door and Window END
-
+ 
   //Laser Receiver Start
   //Laser Receiver Start
   if (feature == 1) {
+    digitalWrite(14,1);
 
     if (digitalRead(12) == 1) {
       buzzer(1);
