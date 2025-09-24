@@ -22,8 +22,8 @@ int antiTheft = 0;
 int smartWindow = 0;
 
 //callme START
-String phoneNumber = "+8801761377885";
-String apiKey = "4336380";
+String phoneNumber = "12345678";
+String apiKey = "12345678";
 
 void sendMessage(String message) {
   
